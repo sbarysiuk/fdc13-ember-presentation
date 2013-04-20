@@ -1,0 +1,463 @@
+## Default Application template 
+
+## Defining Expenses Route 
+
+## Defining 'expenses' template 
+
+## Starting with static data 
+
+~~~ javascript
+App.ExpensesRoute = Ember.Route.extend({
+	model: function(){
+		return ['a', 'b', 'c'];
+	}
+});
+~~~
+
+## Rendering static data in the template
+
+~~~ html
+<script type="text/x-handlebars" data-template-name="expenses">
+	Expenses
+	{{#each controller}}
+		{{this}} <br/>
+	{{/each}}
+</script>
+~~~
+
+## Defining real data 
+## Creating Store
+
+~~~ javascript
+App.Store = DS.Store.extend({
+	revision: 12,
+	adapter: 'DS.FixtureAdapter'
+});
+~~~
+
+## Creating models
+
+~~~ javascript
+App.Expense = DS.Model.extend({
+	description: DS.attr('string'),
+	money: DS.attr('number'),
+	date: DS.attr('date'),
+	category: DS.attr('string')
+});
+~~~
+
+## Define FIXTURES
+
+~~~ javascript
+App.Expense.FIXTURES = [
+	{id: 1, description: 'Going to bar...', money: 50, date: new Date('04/01/2013'), category: 'Food'},
+	{id: 2, description: 'Trip to Vilnius', money: 150, date: new Date('04/06/2013'), category: 'Travelling'}
+];
+~~~
+
+## Defining model hook in router
+## Rendering data in the table
+
+~~~ html
+<script type="text/x-handlebars" data-template-name="expenses">
+	<div class="subheader">
+		<h2>Expenses</h2>
+	</div>
+
+	<table class="expenses">
+	{{#each controller}}
+		<tr>
+			<td>
+				{{description}} <span class="category">({{category}})</span>
+				<div class="date">{{date}}</div>
+			</td>
+			<td class="money">${{money}}</td>
+		</tr>	
+	{{/each}}		
+	</table>
+</script>
+~~~
+
+## Check databinding in console
+
+~~~ javascript
+var e = App.Expense.find(1);
+e.set('description', 'Hello World!');
+~~~
+
+## Creating handlebars helper
+
+~~~ javascript
+Ember.Handlebars.registerBoundHelper('fromNow', function(date){
+	return moment(date).fromNow();
+});
+~~~
+
+## Defining total computed propery (we need to add ExpensesControler before)
+
+~~~ javascript
+App.ExpensesController = Ember.ArrayController.extend({
+	total: function(){
+		var total = 0;
+		this.get('model').forEach(function(item){
+			total += item.get('money');
+		});
+		return total;
+	}.property('@each.money')
+});
+~~~
+
+## Add total to template
+
+~~~ html
+<tr class="total">
+	<td class="total">Total:</td>
+	<td class="money">${{total}}</td>
+</tr>
+~~~
+
+
+# CREATE A NEW EXPENSE
+
+## Adding expenses.new route
+
+~~~ javascript
+App.Router.map(function(){
+	this.resource('expenses', {path: '/'}, function(){
+		this.route('new')
+	});
+});
+~~~
+
+## Adding linkTo
+
+~~~ html
+<div class="subheader">
+	<h2>Expenses</h2>
+	{{#linkTo 'expenses.new' class="button icon-plus-sign right"}} Add new{{/linkTo}}
+</div>
+~~~
+
+## Adding a new template
+
+~~~ html
+<script type="text/x-handlebars" data-template-name="expenses/new">
+	<div class="subheader">
+		<h2>Add a new expense</h2>
+	</div>
+</script>
+~~~
+
+Trying to render - nothings. Need to rearrange names.
+
+## Adding /index
+
+~~~ html
+<script type="text/x-handlebars" data-template-name="expenses">
+	{{outlet}}
+</script>
+~~~
+
+expenses -> expenses/index
+App.ExpensesRoute -> App.ExpensesIndexRoute
+App.ExpensesController -> App.ExpensesIndexController
+
+## Creating a controller for ExpensesNewController
+
+~~~ javascript
+App.ExpensesNewController = Ember.Controller.extend({
+	obj: {}
+});
+~~~
+
+## Adding fields to the form
+
+~~~ html
+<li>{{view Ember.TextField valueBinding="obj.description" placeholder="Description..."}}</li>
+<li>{{view Ember.TextField valueBinding="obj.money" placeholder="Money..."}}</li>
+~~~
+
+## Adding Categories & selector
+
+~~~ javascript
+var CATEGORIES = ['Food', 'Travelling', 'Hobby', 'Car'];
+~~~
+
+~~~ javascript
+App.ExpensesNewController = Ember.Controller.extend({
+	obj: {},
+	categories: CATEGORIES
+});
+~~~
+
+~~~ html
+<li>{{view Ember.Select valueBinding="obj.category" contentBinding="categories"}}</li>
+~~~
+
+## Save action
+
+~~~ html
+<li class="c"><button class="button right" {{action save}}>Save</button></li>
+~~~
+
+~~~ javascript
+save: function(){
+	console.log(this.get('obj'))
+}
+~~~
+
+## Implementing save action
+
+~~~ javascript
+save: function(){
+	var obj = this.get('obj');
+	App.Expense.createRecord({
+		description: obj.description,
+		money: parseInt(obj.money),
+		category: obj.category,
+		date: new Date()
+	});
+	this.get('store').commit();
+	this.transitionToRoute('expenses');
+}
+~~~
+
+## Back button to expenses
+
+~~~ html
+{{#linkTo expenses class="button icon-chevron-left left"}} Back{{/linkTo}}
+~~~
+
+# EDIT EXISTING EXPENSE
+
+## Adding route
+
+~~~ javascript
+this.resource('expense', {path: '/:expense_id'});
+~~~
+
+## Defining Template
+
+~~~ html
+<script type="text/x-handlebars" data-template-name="expense">
+	<div class="subheader">
+		{{#linkTo expenses class="button icon-chevron-left left"}} Back{{/linkTo}}
+		<h2>Edit expense</h2>
+	</div>
+</script>
+~~~
+
+## Defining link
+
+~~~ html
+{{#linkTo expense this}}{{description}}{{/linkTo}}
+~~~
+
+Show how link works
+
+## Adding form with current data
+
+~~~ javascript
+App.ExpenseController = Ember.ObjectController.extend({
+	categories: CATEGORIES,
+	save: function(){
+
+	}
+});
+~~~
+
+~~~ html
+<ul class="form">
+	<li>{{view Ember.TextField valueBinding="description" placeholder="Description..."}}</li>
+	<li>{{view Ember.Select valueBinding="category" contentBinding="categories"}}</li>
+	<li>{{view Ember.TextField valueBinding="money" placeholder="Money..."}}</li>
+	<li class="c"><button class="button right" {{action save}}>Save</button></li>
+</ul>
+~~~
+
+## Implementing update
+
+~~~ javascript
+save: function(){
+	this.get('store').commit();
+	this.transitionToRoute('expenses');	
+}
+~~~
+
+## Fixing conver to int problem
+
+~~~ javascript
+_money: 0,
+~~~
+
+~~~ javascript
+this.set('money', parseInt(this.get('_money')));
+~~~
+
+~~~ html
+<li>{{view Ember.TextField valueBinding="_money" placeholder="Money..."}}</li>
+~~~
+
+## Intializing with initial value
+
+~~~ javascript
+App.ExpenseRoute = Ember.Route.extend({
+	setupController: function(controller){
+		controller.set('_money', controller.get('money'));
+	}
+});
+~~~
+
+
+# ADDING GRAPH
+
+## Adding route and template
+
+~~~ javascript
+this.resource('expenses', {path: '/'}, function(){
+	this.route('new');
+	this.route('stats');
+});
+~~~
+
+~~~ html
+<script type="text/x-handlebars" data-template-name="expenses/stats">
+	<div class="subheader">
+		<h2>Expenses</h2>
+		{{#linkTo 'expenses.new' class="button icon-plus-sign right"}} Add new{{/linkTo}}
+	</div>
+	Stats
+</script>
+~~~
+
+## Adding selector control
+
+~~~ html
+<ul class="selector">
+	<li>{{#linkTo expenses}} Details {{/linkTo}}</li>
+	<li>{{#linkTo expenses.stats}} Statistics {{/linkTo}}</li>
+</ul>
+~~~
+
+
+## Create custom view
+
+~~~ javascript
+App.ExpensesChartView = Ember.View.extend({
+	tagName: 'div',
+	didInsertElement: function(){
+		this.$().text('OK');
+	}
+});
+~~~
+
+## Adding it to template 
+
+~~~ html
+{{view App.ExpensesChartView}}
+~~~
+
+## Implementing view rendering logic
+
+~~~ javascript
+App.ExpensesChartView = Ember.View.extend({
+	tagName: 'div',
+	chartData: {
+		data:[],
+		legend: []
+	},
+	chart: null,
+	didInsertElement: function(){
+		if(!this.get('chart')) {
+			var chart = Raphael(this.get('elementId'));
+			this.set('chart', chart);
+		}
+	},
+	updateChart: function(){
+		var chart = this.get('chart');
+		var chartData = this.get('chartData');
+		chart.clear();
+		chart.piechart(220, 100, 100, chartData.data, {
+			legend: chartData.legend,
+			legendpos: "south"
+		});
+	}.observes('chartData')
+
+});
+~~~
+
+~~~ html
+{{view App.ExpensesChartView  class="stats"}}
+~~~
+
+## Binding to controller
+
+~~~ javascript
+App.ExpensesStatsController = Ember.ArrayController.extend({
+	chartData: function(){
+		return {
+			data:[10, 20],
+			legend: ['a', 'b']
+		}
+	}.property('@each.money', '@each.category')
+});
+~~~
+
+~~~ html
+{{view App.ExpensesChartView chartDataBinding="chartData" class="stats"}}
+~~~
+
+~~~ javascript
+App.ExpensesStatsRoute = Ember.Route.extend({
+	model: function(){
+		return App.Expense.find();
+	}
+});
+~~~
+
+## Creating chart data structure
+
+~~~ javascript
+var chartData = {
+	data: [],
+	legend: []
+};
+~~~
+
+~~~ javascript
+var _data = {};
+this.get('model').forEach(function(item){
+	var categoryName = item.get('category');
+	if(_data[categoryName] != undefined) {
+		_data[categoryName] = _data[categoryName] + item.get('money');
+	}
+	else {
+		_data[categoryName] = item.get('money');
+	}
+});
+
+var categories = Ember.keys(_data);
+categories.forEach(function(key){
+	chartData.legend.push(key);
+	chartData.data.push(_data[key]);
+});
+
+return chartData;	
+~~~
+
+# REAL SERVER
+
+## Changing Adapter
+
+~~~ javascript
+adapter: DS.RESTAdapter.extend({
+		url:'http://localhost:3000'
+})		
+~~~
+
+## Launching Chore with disabled web security
+
+<pre><code>
+open /Applications/Google\ Chrome.app --args --disable-web-security
+</code></pre>
+			

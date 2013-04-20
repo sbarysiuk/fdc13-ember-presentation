@@ -1,0 +1,183 @@
+body {
+	font-size: 14px;
+	font-family: 'Noto Sans', sans-serif;
+}
+
+/*back: #404040*/
+/*red: e55a5e*/
+/*orange: f3e367*/
+/*green: 53b89c*/
+/*dark green: 429c98*/
+
+.c {
+	overflow:hidden;
+}
+
+a, a:visited {	
+	color:#e55a5e;
+	font-weight:bold;
+	text-decoration: none;
+}
+
+a.button {
+	background: #e55a5e;
+	color:#FFF;
+	padding:5px 10px;
+	margin:4px;
+	border-radius:4px;
+	font-weight: bold;
+}
+
+button.button {
+	background: #e55a5e;
+	color:#FFF;
+	padding:5px 10px;
+	margin:4px;
+	border-radius:4px;
+	font-weight: bold;
+	border:none;
+	font-size:18px;	
+}
+
+button.button.right {
+	float:right;
+}
+
+.tracker {
+	width:450px;
+	margin:100px auto;
+	background:#F7F7F7;
+	border-radius:4px;
+	overflow: hidden;
+}
+
+.tracker h1 {
+	display: block;
+	background:#429c98;
+	color:#FFF;
+	padding:10px 10px;
+	text-align: center;
+	font-size: 19px;
+	font-weight: normal;
+	margin:0;
+}
+
+.tracker .subheader {
+	display: block;
+	background:#53b89c;
+	color:#FFF;
+	padding:10px 10px;
+	text-align: center;
+	font-weight: normal;
+	position: relative;
+}
+
+.tracker .subheader h2 {
+	padding:0;
+	margin:0;
+	font-size: 17px;
+	font-weight: normal;
+	line-height: 28px;
+}
+
+.tracker .subheader .button.right,
+.tracker .subheader .button.left {
+	display: block;
+	width:90px;
+	position: absolute;
+	top:5px;
+	right:10px;
+	background:#429c98;
+	border:1px solid #3e918d;
+	padding:5px;
+}
+
+.tracker .subheader .button.left {
+	left:10px;
+}
+
+table.expenses {
+	width: 100%;
+	border-top:1px solid #F0F0F0;
+	margin:20px 0;
+}
+
+table.expenses td {
+	padding:10px 20px;
+	border-bottom:1px solid #F0F0F0;
+}
+
+table.expenses td .category {
+	color:#666;
+}
+
+table.expenses td .date {
+	color:#888;
+	font-size: 14px;
+}
+
+table.expenses td.money {
+	width:80px;
+	font-weight: bold;
+	font-size: 19px;
+}
+
+table.expenses tr.total td {
+	padding:5px 20px;
+	background: #FAFAFA;
+}
+
+table.expenses td.total {
+	text-align: right;
+	font-weight: bold;
+	font-size: 18px;
+}
+
+ul.selector {
+	border:1px solid #EEE;
+	background:#FEFEFE;
+	width:200px;
+	padding:0;
+	margin:15px auto 10px auto;
+	border-radius: 4px;
+}
+
+ul.selector li {
+	list-style: none;
+	display: inline-block;
+	text-align: center;
+	margin: 0;
+	padding:0 20px;	
+}
+
+ul.selector li:first-child {
+	border-right:1px solid #EEE;
+}
+
+ul.selector li a {
+	display: block;
+	padding:4px 0;
+	width:100%;
+}
+
+ul.form {
+	list-style: none;
+	padding:0;
+}
+
+ul.form li {
+	margin:20px 20px;
+}
+
+ul.form li input,
+ul.form li select {
+	font-size: 18px;
+	border:1px solid #EEE;
+	padding:10px 20px;
+	width:99%;
+}
+
+.stats {
+	margin-top:40px;
+}
+

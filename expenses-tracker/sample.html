@@ -1,0 +1,414 @@
+<h2 id="default-application-template">Default Application template</h2>
+
+<h2 id="defining-expenses-route">Defining Expenses Route</h2>
+
+<h2 id="defining-expenses-template">Defining &#8216;expenses&#8217; template</h2>
+
+<h2 id="starting-with-static-data">Starting with static data</h2>
+
+<pre><code class="language-javascript">App.ExpensesRoute = Ember.Route.extend({
+	model: function(){
+		return ['a', 'b', 'c'];
+	}
+});
+</code></pre>
+
+<h2 id="rendering-static-data-in-the-template">Rendering static data in the template</h2>
+
+<pre><code class="language-html">&lt;script type="text/x-handlebars" data-template-name="expenses"&gt;
+	Expenses
+	{{#each controller}}
+		{{this}} &lt;br/&gt;
+	{{/each}}
+&lt;/script&gt;
+</code></pre>
+
+<h2 id="defining-real-data">Defining real data</h2>
+<p>## Creating Store</p>
+
+<pre><code class="language-javascript">App.Store = DS.Store.extend({
+	revision: 12,
+	adapter: 'DS.FixtureAdapter'
+});
+</code></pre>
+
+<h2 id="creating-models">Creating models</h2>
+
+<pre><code class="language-javascript">App.Expense = DS.Model.extend({
+	description: DS.attr('string'),
+	money: DS.attr('number'),
+	date: DS.attr('date'),
+	category: DS.attr('string')
+});
+</code></pre>
+
+<h2 id="define-fixtures">Define FIXTURES</h2>
+
+<pre><code class="language-javascript">App.Expense.FIXTURES = [
+	{id: 1, description: 'Going to bar...', money: 50, date: new Date('04/01/2013'), category: 'Food'},
+	{id: 2, description: 'Trip to Vilnius', money: 150, date: new Date('04/06/2013'), category: 'Travelling'}
+];
+</code></pre>
+
+<h2 id="defining-model-hook-in-router">Defining model hook in router</h2>
+<p>## Rendering data in the table</p>
+
+<pre><code class="language-html">&lt;script type="text/x-handlebars" data-template-name="expenses"&gt;
+	&lt;div class="subheader"&gt;
+		&lt;h2&gt;Expenses&lt;/h2&gt;
+	&lt;/div&gt;
+
+	&lt;table class="expenses"&gt;
+	{{#each controller}}
+		&lt;tr&gt;
+			&lt;td&gt;
+				{{description}} &lt;span class="category"&gt;({{category}})&lt;/span&gt;
+				&lt;div class="date"&gt;{{date}}&lt;/div&gt;
+			&lt;/td&gt;
+			&lt;td class="money"&gt;${{money}}&lt;/td&gt;
+		&lt;/tr&gt;	
+	{{/each}}		
+	&lt;/table&gt;
+&lt;/script&gt;
+</code></pre>
+
+<h2 id="check-databinding-in-console">Check databinding in console</h2>
+
+<pre><code class="language-javascript">var e = App.Expense.find(1);
+e.set('description', 'Hello World!');
+</code></pre>
+
+<h2 id="creating-handlebars-helper">Creating handlebars helper</h2>
+
+<pre><code class="language-javascript">Ember.Handlebars.registerBoundHelper('fromNow', function(date){
+	return moment(date).fromNow();
+});
+</code></pre>
+
+<h2 id="defining-total-computed-propery-we-need-to-add-expensescontroler-before">Defining total computed propery (we need to add ExpensesControler before)</h2>
+
+<pre><code class="language-javascript">App.ExpensesController = Ember.ArrayController.extend({
+	total: function(){
+		var total = 0;
+		this.get('model').forEach(function(item){
+			total += item.get('money');
+		});
+		return total;
+	}.property('@each.money')
+});
+</code></pre>
+
+<h2 id="add-total-to-template">Add total to template</h2>
+
+<pre><code class="language-html">&lt;tr class="total"&gt;
+	&lt;td class="total"&gt;Total:&lt;/td&gt;
+	&lt;td class="money"&gt;${{total}}&lt;/td&gt;
+&lt;/tr&gt;
+</code></pre>
+
+<h1 id="create-a-new-expense">CREATE A NEW EXPENSE</h1>
+
+<h2 id="adding-expensesnew-route">Adding expenses.new route</h2>
+
+<pre><code class="language-javascript">App.Router.map(function(){
+	this.resource('expenses', {path: '/'}, function(){
+		this.route('new')
+	});
+});
+</code></pre>
+
+<h2 id="adding-linkto">Adding linkTo</h2>
+
+<pre><code class="language-html">&lt;div class="subheader"&gt;
+	&lt;h2&gt;Expenses&lt;/h2&gt;
+	{{#linkTo 'expenses.new' class="button icon-plus-sign right"}} Add new{{/linkTo}}
+&lt;/div&gt;
+</code></pre>
+
+<h2 id="adding-a-new-template">Adding a new template</h2>
+
+<pre><code class="language-html">&lt;script type="text/x-handlebars" data-template-name="expenses/new"&gt;
+	&lt;div class="subheader"&gt;
+		&lt;h2&gt;Add a new expense&lt;/h2&gt;
+	&lt;/div&gt;
+&lt;/script&gt;
+</code></pre>
+
+<p>Trying to render - nothings. Need to rearrange names.</p>
+
+<h2 id="adding-index">Adding /index</h2>
+
+<pre><code class="language-html">&lt;script type="text/x-handlebars" data-template-name="expenses"&gt;
+	{{outlet}}
+&lt;/script&gt;
+</code></pre>
+
+<p>expenses -&gt; expenses/index
+App.ExpensesRoute -&gt; App.ExpensesIndexRoute
+App.ExpensesController -&gt; App.ExpensesIndexController</p>
+
+<h2 id="creating-a-controller-for-expensesnewcontroller">Creating a controller for ExpensesNewController</h2>
+
+<pre><code class="language-javascript">App.ExpensesNewController = Ember.Controller.extend({
+	obj: {}
+});
+</code></pre>
+
+<h2 id="adding-fields-to-the-form">Adding fields to the form</h2>
+
+<pre><code class="language-html">&lt;li&gt;{{view Ember.TextField valueBinding="obj.description" placeholder="Description..."}}&lt;/li&gt;
+&lt;li&gt;{{view Ember.TextField valueBinding="obj.money" placeholder="Money..."}}&lt;/li&gt;
+</code></pre>
+
+<h2 id="adding-categories--selector">Adding Categories &amp; selector</h2>
+
+<pre><code class="language-javascript">var CATEGORIES = ['Food', 'Travelling', 'Hobby', 'Car'];
+</code></pre>
+
+<pre><code class="language-javascript">App.ExpensesNewController = Ember.Controller.extend({
+	obj: {},
+	categories: CATEGORIES
+});
+</code></pre>
+
+<pre><code class="language-html">&lt;li&gt;{{view Ember.Select valueBinding="obj.category" contentBinding="categories"}}&lt;/li&gt;
+</code></pre>
+
+<h2 id="save-action">Save action</h2>
+
+<pre><code class="language-html">&lt;li class="c"&gt;&lt;button class="button right" {{action save}}&gt;Save&lt;/button&gt;&lt;/li&gt;
+</code></pre>
+
+<pre><code class="language-javascript">save: function(){
+	console.log(this.get('obj'))
+}
+</code></pre>
+
+<h2 id="implementing-save-action">Implementing save action</h2>
+
+<pre><code class="language-javascript">save: function(){
+	var obj = this.get('obj');
+	App.Expense.createRecord({
+		description: obj.description,
+		money: parseInt(obj.money),
+		category: obj.category,
+		date: new Date()
+	});
+	this.get('store').commit();
+	this.transitionToRoute('expenses');
+}
+</code></pre>
+
+<h2 id="back-button-to-expenses">Back button to expenses</h2>
+
+<pre><code class="language-html">{{#linkTo expenses class="button icon-chevron-left left"}} Back{{/linkTo}}
+</code></pre>
+
+<h1 id="edit-existing-expense">EDIT EXISTING EXPENSE</h1>
+
+<h2 id="adding-route">Adding route</h2>
+
+<pre><code class="language-javascript">this.resource('expense', {path: '/:expense_id'});
+</code></pre>
+
+<h2 id="defining-template">Defining Template</h2>
+
+<pre><code class="language-html">&lt;script type="text/x-handlebars" data-template-name="expense"&gt;
+	&lt;div class="subheader"&gt;
+		{{#linkTo expenses class="button icon-chevron-left left"}} Back{{/linkTo}}
+		&lt;h2&gt;Edit expense&lt;/h2&gt;
+	&lt;/div&gt;
+&lt;/script&gt;
+</code></pre>
+
+<h2 id="defining-link">Defining link</h2>
+
+<pre><code class="language-html">{{#linkTo expense this}}{{description}}{{/linkTo}}
+</code></pre>
+
+<p>Show how link works</p>
+
+<h2 id="adding-form-with-current-data">Adding form with current data</h2>
+
+<pre><code class="language-javascript">App.ExpenseController = Ember.ObjectController.extend({
+	categories: CATEGORIES,
+	save: function(){
+
+	}
+});
+</code></pre>
+
+<pre><code class="language-html">&lt;ul class="form"&gt;
+	&lt;li&gt;{{view Ember.TextField valueBinding="description" placeholder="Description..."}}&lt;/li&gt;
+	&lt;li&gt;{{view Ember.Select valueBinding="category" contentBinding="categories"}}&lt;/li&gt;
+	&lt;li&gt;{{view Ember.TextField valueBinding="money" placeholder="Money..."}}&lt;/li&gt;
+	&lt;li class="c"&gt;&lt;button class="button right" {{action save}}&gt;Save&lt;/button&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</code></pre>
+
+<h2 id="implementing-update">Implementing update</h2>
+
+<pre><code class="language-javascript">save: function(){
+	this.get('store').commit();
+	this.transitionToRoute('expenses');	
+}
+</code></pre>
+
+<h2 id="fixing-conver-to-int-problem">Fixing conver to int problem</h2>
+
+<pre><code class="language-javascript">_money: 0,
+</code></pre>
+
+<pre><code class="language-javascript">this.set('money', parseInt(this.get('_money')));
+</code></pre>
+
+<pre><code class="language-html">&lt;li&gt;{{view Ember.TextField valueBinding="_money" placeholder="Money..."}}&lt;/li&gt;
+</code></pre>
+
+<h2 id="intializing-with-initial-value">Intializing with initial value</h2>
+
+<pre><code class="language-javascript">App.ExpenseRoute = Ember.Route.extend({
+	setupController: function(controller){
+		controller.set('_money', controller.get('money'));
+	}
+});
+</code></pre>
+
+<h1 id="adding-graph">ADDING GRAPH</h1>
+
+<h2 id="adding-route-and-template">Adding route and template</h2>
+
+<pre><code class="language-javascript">this.resource('expenses', {path: '/'}, function(){
+	this.route('new');
+	this.route('stats');
+});
+</code></pre>
+
+<pre><code class="language-html">&lt;script type="text/x-handlebars" data-template-name="expenses/stats"&gt;
+	&lt;div class="subheader"&gt;
+		&lt;h2&gt;Expenses&lt;/h2&gt;
+		{{#linkTo 'expenses.new' class="button icon-plus-sign right"}} Add new{{/linkTo}}
+	&lt;/div&gt;
+	Stats
+&lt;/script&gt;
+</code></pre>
+
+<h2 id="adding-selector-control">Adding selector control</h2>
+
+<pre><code class="language-html">&lt;ul class="selector"&gt;
+	&lt;li&gt;{{#linkTo expenses}} Details {{/linkTo}}&lt;/li&gt;
+	&lt;li&gt;{{#linkTo expenses.stats}} Statistics {{/linkTo}}&lt;/li&gt;
+&lt;/ul&gt;
+</code></pre>
+
+<h2 id="create-custom-view">Create custom view</h2>
+
+<pre><code class="language-javascript">App.ExpensesChartView = Ember.View.extend({
+	tagName: 'div',
+	didInsertElement: function(){
+		this.$().text('OK');
+	}
+});
+</code></pre>
+
+<h2 id="adding-it-to-template">Adding it to template</h2>
+
+<pre><code class="language-html">{{view App.ExpensesChartView}}
+</code></pre>
+
+<h2 id="implementing-view-rendering-logic">Implementing view rendering logic</h2>
+
+<pre><code class="language-javascript">App.ExpensesChartView = Ember.View.extend({
+	tagName: 'div',
+	chartData: {
+		data:[],
+		legend: []
+	},
+	chart: null,
+	didInsertElement: function(){
+		if(!this.get('chart')) {
+			var chart = Raphael(this.get('elementId'));
+			this.set('chart', chart);
+		}
+	},
+	updateChart: function(){
+		var chart = this.get('chart');
+		var chartData = this.get('chartData');
+		chart.clear();
+		chart.piechart(220, 100, 100, chartData.data, {
+			legend: chartData.legend,
+			legendpos: "south"
+		});
+	}.observes('chartData')
+
+});
+</code></pre>
+
+<pre><code class="language-html">{{view App.ExpensesChartView  class="stats"}}
+</code></pre>
+
+<h2 id="binding-to-controller">Binding to controller</h2>
+
+<pre><code class="language-javascript">App.ExpensesStatsController = Ember.ArrayController.extend({
+	chartData: function(){
+		return {
+			data:[10, 20],
+			legend: ['a', 'b']
+		}
+	}.property('@each.money', '@each.category')
+});
+</code></pre>
+
+<pre><code class="language-html">{{view App.ExpensesChartView chartDataBinding="chartData" class="stats"}}
+</code></pre>
+
+<pre><code class="language-javascript">App.ExpensesStatsRoute = Ember.Route.extend({
+	model: function(){
+		return App.Expense.find();
+	}
+});
+</code></pre>
+
+<h2 id="creating-chart-data-structure">Creating chart data structure</h2>
+
+<pre><code class="language-javascript">var chartData = {
+	data: [],
+	legend: []
+};
+</code></pre>
+
+<pre><code class="language-javascript">var _data = {};
+this.get('model').forEach(function(item){
+	var categoryName = item.get('category');
+	if(_data[categoryName] != undefined) {
+		_data[categoryName] = _data[categoryName] + item.get('money');
+	}
+	else {
+		_data[categoryName] = item.get('money');
+	}
+});
+
+var categories = Ember.keys(_data);
+categories.forEach(function(key){
+	chartData.legend.push(key);
+	chartData.data.push(_data[key]);
+});
+
+return chartData;	
+</code></pre>
+
+<h1 id="real-server">REAL SERVER</h1>
+
+<h2 id="changing-adapter">Changing Adapter</h2>
+
+<pre><code class="language-javascript">adapter: DS.RESTAdapter.extend({
+		url:'http://localhost:3000'
+})		
+</code></pre>
+
+<h2 id="launching-chore-with-disabled-web-security">Launching Chore with disabled web security</h2>
+
+<pre><code>
+open /Applications/Google\ Chrome.app --args --disable-web-security
+</code></pre>
+

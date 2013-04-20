@@ -1,0 +1,100 @@
+<html>
+<head>
+	<title>Expenses Tracker</title>
+	<link href='http://fonts.googleapis.com/css?family=Noto+Sans:400,700' rel='stylesheet' type='text/css'>
+	<link href='styles.css' rel='stylesheet' type='text/css'>
+	<link href="fontawesome/font-awesome.min.css" rel='stylesheet' type='text/css'>
+</head>
+<body>
+
+	<script type="text/x-handlebars" data-template-name="application">
+		<div class="tracker">
+			<h1>Expenses Tracker</h1>
+			{{outlet}}
+		</div>
+	</script>
+
+	<script type="text/x-handlebars" data-template-name="expenses">
+		{{outlet}}
+	</script>
+
+	<script type="text/x-handlebars" data-template-name="expenses/index">
+		<div class="subheader">
+			<h2>Expenses</h2>
+			{{#linkTo 'expenses.new' class="button icon-plus-sign right"}} Add new{{/linkTo}}
+		</div>
+
+		<ul class="selector">
+			<li>{{#linkTo expenses}} Details {{/linkTo}}</li>
+			<li>{{#linkTo expenses.stats}} Statistics {{/linkTo}}</li>
+		</ul>
+		
+		<table class="expenses">
+			<tr class="total">
+				<td class="total">Total:</td>
+				<td class="money">${{total}}</td>
+			</tr>
+
+		{{#each controller}}
+			<tr>
+				<td>
+					{{#linkTo expense this}}{{description}}{{/linkTo}} <span class="category">({{category}})</span>
+					<div class="date">{{fromNow date}}</div>
+				</td>
+				<td class="money">${{money}}</td>
+			</tr>	
+		{{/each}}		
+		</table>
+	</script>
+
+	<script type="text/x-handlebars" data-template-name="expenses/new">
+		<div class="subheader">
+			{{#linkTo expenses class="button icon-chevron-left left"}} Back{{/linkTo}}
+			<h2>Add a new expense</h2>
+		</div>
+		<ul class="form">
+			<li>{{view Ember.TextField valueBinding="obj.description" placeholder="Description..."}}</li>
+			<li>{{view Ember.Select valueBinding="obj.category" contentBinding="categories"}}</li>
+			<li>{{view Ember.TextField valueBinding="obj.money" placeholder="Money..."}}</li>
+			<li class="c"><button class="button right" {{action save}}>Save</button></li>
+		</ul>
+	</script>
+
+	<script type="text/x-handlebars" data-template-name="expense">
+		<div class="subheader">
+			{{#linkTo expenses class="button icon-chevron-left left"}} Back{{/linkTo}}
+			<h2>Edit expense</h2>
+		</div>
+		<ul class="form">
+			<li>{{view Ember.TextField valueBinding="description" placeholder="Description..."}}</li>
+			<li>{{view Ember.Select valueBinding="category" contentBinding="categories"}}</li>
+			<li>{{view Ember.TextField valueBinding="_money" placeholder="Money..."}}</li>
+			<li class="c"><button class="button right" {{action save}}>Save</button></li>
+		</ul>
+	</script>
+
+	<script type="text/x-handlebars" data-template-name="expenses/stats">
+		<div class="subheader">
+			<h2>Expenses</h2>
+			{{#linkTo 'expenses.new' class="button icon-plus-sign right"}} Add new{{/linkTo}}
+		</div>
+		<ul class="selector">
+			<li>{{#linkTo expenses}} Details {{/linkTo}}</li>
+			<li>{{#linkTo expenses.stats}} Statistics {{/linkTo}}</li>
+		</ul>
+
+		{{view App.ExpensesChartView chartDataBinding="chartData" class="stats"}}
+	</script>
+	
+
+	<script type="text/javascript" src="libs/jquery-1.9.1.js"></script>
+	<script type="text/javascript" src="libs/handlebars-1.0.0-rc.3.js"></script>
+	<script type="text/javascript" src="libs/ember-1.0.0-rc.2.js"></script>
+	<script type="text/javascript" src="libs/ember-data-latest.js"></script>
+	<script type="text/javascript" src="libs/moment.js"></script>
+	<script type="text/javascript" src="libs/graphael/raphael.js"></script>
+	<script type="text/javascript" src="libs/graphael/g.raphael.js"></script>
+	<script type="text/javascript" src="libs/graphael/g.pie.js"></script>
+	<script type="text/javascript" src="app.js"></script>
+</body>
+</html>
